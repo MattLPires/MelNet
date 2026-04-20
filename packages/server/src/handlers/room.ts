@@ -93,9 +93,16 @@ export function handleJoinRoom(
 
   try {
     addMember(room.id, userId, nickname);
+  } catch {
+    // Already a member — that's fine, continue
+  }
 
-    // Assign virtual IP to the new member
-    const memberIp = vnetManager.assignIp(room.id, userId);
+  try {
+    // Get or assign virtual IP
+    let memberIp = vnetManager.getIp(room.id, userId);
+    if (!memberIp) {
+      memberIp = vnetManager.assignIp(room.id, userId);
+    }
     const tunnel = buildTunnelCredentials(memberIp);
 
     return {

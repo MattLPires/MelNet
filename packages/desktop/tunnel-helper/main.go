@@ -179,7 +179,6 @@ func main() {
 					regPkt[3] = 0xFF
 					copy(regPkt[4:8], virtualIP)
 					relay.Write(regPkt)
-					log.Printf("registered with relay as %s", virtualIPStr)
 				}
 
 				// TUN → Relay
