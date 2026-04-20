@@ -114,6 +114,13 @@ async function routeMessage(
 
   switch (message.type) {
     // ── Auth handlers ──
+    case "auth-restore": {
+      const user = authenticateSocket(socket, payload);
+      if (user) {
+        send(socket, { type: "auth-restored", payload: { userId: user.userId, nickname: user.nickname } });
+      }
+      break;
+    }
     case "register": {
       const result = await handleRegister(payload as Parameters<typeof handleRegister>[0]);
       if (result.type === "register-success") {

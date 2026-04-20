@@ -150,6 +150,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onNavigateToR
     }
   };
 
+  const deleteRoom = (roomId: string) => {
+    try { networkManager.send('close-room', { roomId }); } catch { /* */ }
+    setTimeout(fetchRooms, 500);
+  };
+
   const RoomCard = ({ room, showEnter }: { room: PublicRoom; showEnter?: boolean }) => (
     <div className={styles.roomCard} data-testid="room-card" onClick={() => showEnter && enterRoom(room)}>
       <div className={styles.roomInfo}>
@@ -168,11 +173,18 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onNavigateToR
           </span>
         </div>
       </div>
-      {showEnter && (
-        <button className={styles.enterBtn} onClick={(e) => { e.stopPropagation(); enterRoom(room); }}>
-          Entrar
-        </button>
-      )}
+      <div className={styles.roomActions}>
+        {showEnter && (
+          <button className={styles.enterBtn} onClick={(e) => { e.stopPropagation(); enterRoom(room); }}>
+            Entrar
+          </button>
+        )}
+        {room.hostId === user?.id && (
+          <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); deleteRoom(room.id); }} aria-label="Excluir sala">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 

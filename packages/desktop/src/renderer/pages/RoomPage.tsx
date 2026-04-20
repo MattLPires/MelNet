@@ -59,20 +59,26 @@ const RoomPage: React.FC<RoomPageProps> = ({ roomId, roomName, members: initialM
 
     setTunnelStatus('connecting');
     try {
-      const result = await window.melnetTunnel?.start({
+      const timeout = new Promise<{ success: false; error: string }>((resolve) =>
+        setTimeout(() => resolve({ success: false, error: 'Tempo esgotado (10s)' }), 10000)
+      );
+      const attempt = window.melnetTunnel?.start({
         virtualIp: tunnelCreds.virtualIp,
         subnet: '255.255.255.0',
         relayHost: tunnelCreds.relayHost,
         relayPort: tunnelCreds.relayPort,
         tunnelKey: tunnelCreds.tunnelKey,
-      });
+      }) ?? Promise.resolve({ success: false as const, error: 'API indisponível' });
+
+      const result = await Promise.race([attempt, timeout]);
       if (result?.success) {
         setTunnelStatus('on');
-        if (result.virtualIp) setVirtualIp(result.virtualIp);
-        addSystem(`Túnel ligado — IP: ${result.virtualIp ?? tunnelCreds.virtualIp}`);
+        if ('virtualIp' in result && result.virtualIp) setVirtualIp(result.virtualIp as string);
+        addSystem(`Túnel ligado — IP: ${tunnelCreds.virtualIp}`);
       } else {
         setTunnelStatus('off');
-        addSystem(`Falha ao ligar túnel: ${result?.error ?? 'erro desconhecido'}`);
+        window.melnetTunnel?.stop().catch(() => {});
+        addSystem(`Falha: ${('error' in result ? result.error : null) ?? 'erro desconhecido'}`);
       }
     } catch {
       setTunnelStatus('off');

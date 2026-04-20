@@ -26,8 +26,7 @@ export interface RoomPageState {
   };
 }
 
-const DEFAULT_SERVER_URL = 'ss://melnet.onrender.com'
-
+const DEFAULT_SERVER_URL = 'wss://melnet.onrender.com';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, setAuth, setLoading } = useAuthStore();
@@ -48,10 +47,12 @@ const App: React.FC = () => {
       try {
         const session = await window.melnetDb?.session.get();
         if (session && session.token && !session.isGuest) {
-          // Reconnect to server with saved token
+          // Connect to server
           try {
             await networkManager.connect(DEFAULT_SERVER_URL);
-          } catch { /* server offline — still show as logged in locally */ }
+            // Re-authenticate by sending the token so the server knows who we are
+            networkManager.send('auth-restore', { token: session.token });
+          } catch { /* server offline */ }
           setAuth(session.token, {
             id: session.userId,
             nickname: session.nickname,
