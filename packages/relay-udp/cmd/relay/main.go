@@ -1,3 +1,13 @@
+// MelNet UDP Relay — Simple packet forwarder for virtual LAN.
+//
+// Protocol:
+//   Registration: first 4 bytes = 0xFFFFFFFF, next 4 bytes = client's virtual IP
+//   Data packet:  first 4 bytes = destination virtual IP, rest = raw IP packet
+//
+// The relay maintains a mapping of virtual IP → real UDP address.
+// When a data packet arrives, it looks up the destination virtual IP
+// and forwards the packet to the corresponding real address.
+
 package main
 
 import (
@@ -7,15 +17,55 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
-
-	"github.com/melnet/relay-udp/internal/vnet"
 )
 
 const defaultAddr = ":4242"
 
-// minPacketSize is the minimum valid packet: 4 bytes dst IP + at least 1 byte payload.
-const minPacketSize = 5
+// Magic prefix for registration packets
+var regMagic = [4]byte{0xFF, 0xFF, 0xFF, 0xFF}
+
+type PeerEntry struct {
+	addr      *net.UDPAddr
+	virtualIP net.IP
+}
+
+type RelayServer struct {
+	mu    sync.RWMutex
+	// virtualIP string → real UDP address
+	peers map[string]*net.UDPAddr
+	// real UDP address string → virtual IP
+	reverse map[string]net.IP
+}
+
+func NewRelayServer() *RelayServer {
+	return &RelayServer{
+		peers:   make(map[string]*net.UDPAddr),
+		reverse: make(map[string]net.IP),
+	}
+}
+
+func (r *RelayServer) Register(virtualIP net.IP, addr *net.UDPAddr) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	key := virtualIP.To4().String()
+	r.peers[key] = addr
+	r.reverse[addr.String()] = virtualIP.To4()
+	log.Printf("registered: %s → %s", key, addr)
+}
+
+func (r *RelayServer) Lookup(virtualIP net.IP) *net.UDPAddr {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.peers[virtualIP.To4().String()]
+}
+
+func (r *RelayServer) GetVirtualIP(addr *net.UDPAddr) net.IP {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.reverse[addr.String()]
+}
 
 func main() {
 	addr := defaultAddr
@@ -23,97 +73,64 @@ func main() {
 		addr = envAddr
 	}
 
-	conn, err := net.ListenPacket("udp", addr)
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		log.Fatalf("failed to resolve %s: %v", addr, err)
+	}
+
+	conn, err := net.ListenUDP("udp", udpAddr)
 	if err != nil {
 		log.Fatalf("failed to listen on %s: %v", addr, err)
 	}
 	defer conn.Close()
 
-	vnetMgr := vnet.NewVNetManager()
+	relay := NewRelayServer()
 
 	fmt.Printf("melnet relay-udp listening on %s\n", addr)
 
-	// Graceful shutdown
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 
-	go relayLoop(conn, vnetMgr)
+	go func() {
+		buf := make([]byte, 65536)
+		for {
+			n, srcAddr, err := conn.ReadFromUDP(buf)
+			if err != nil {
+				log.Printf("read error: %v", err)
+				continue
+			}
+
+			if n < 8 {
+				continue
+			}
+
+			// Check if this is a registration packet
+			if buf[0] == regMagic[0] && buf[1] == regMagic[1] && buf[2] == regMagic[2] && buf[3] == regMagic[3] {
+				if n >= 8 {
+					virtualIP := net.IP(make([]byte, 4))
+					copy(virtualIP, buf[4:8])
+					relay.Register(virtualIP, srcAddr)
+					// Send ack back
+					conn.WriteToUDP([]byte("OK"), srcAddr)
+				}
+				continue
+			}
+
+			// Data packet: [4 bytes dst virtual IP][payload]
+			dstIP := make(net.IP, 4)
+			binary.BigEndian.PutUint32(dstIP, binary.BigEndian.Uint32(buf[:4]))
+
+			dstAddr := relay.Lookup(dstIP)
+			if dstAddr == nil {
+				// Unknown destination — drop silently
+				continue
+			}
+
+			// Forward entire packet (including the 4-byte header) to destination
+			conn.WriteToUDP(buf[:n], dstAddr)
+		}
+	}()
 
 	<-sig
 	fmt.Println("\nshutting down relay-udp")
-}
-
-// relayLoop reads UDP packets and routes them through the vnet manager.
-// Packet format: [4 bytes destination virtual IP][encrypted payload...]
-func relayLoop(conn net.PacketConn, vnetMgr *vnet.VNetManager) {
-	buf := make([]byte, 1500) // standard MTU
-	for {
-		n, srcAddr, err := conn.ReadFrom(buf)
-		if err != nil {
-			log.Printf("read error: %v", err)
-			return
-		}
-
-		if n < minPacketSize {
-			log.Printf("dropped: packet too small (%d bytes) from %s", n, srcAddr)
-			continue
-		}
-
-		// Parse destination virtual IP from first 4 bytes.
-		dstIP := make(net.IP, 4)
-		binary.BigEndian.PutUint32(dstIP, binary.BigEndian.Uint32(buf[:4]))
-
-		payload := buf[4:n]
-
-		// Find which room the destination IP belongs to.
-		dstRoomID, err := vnetMgr.GetRoomForIP(dstIP)
-		if err != nil {
-			log.Printf("dropped: unknown dst IP %s from %s", dstIP, srcAddr)
-			continue
-		}
-
-		// Find which room the source belongs to by looking up the source address.
-		// We identify the source by its real UDP address — find its virtual IP first.
-		srcRoomID, err := findRoomForAddr(vnetMgr, srcAddr)
-		if err != nil {
-			log.Printf("dropped: unknown source %s", srcAddr)
-			continue
-		}
-
-		// Enforce room isolation: source and destination must be in the same room.
-		if srcRoomID != dstRoomID {
-			log.Printf("dropped: cross-room packet from room %s to room %s (src=%s, dst=%s)",
-				srcRoomID, dstRoomID, srcAddr, dstIP)
-			continue
-		}
-
-		// Look up the real UDP address of the destination peer.
-		dstAddr, err := vnetMgr.GetPeerAddr(dstRoomID, dstIP)
-		if err != nil {
-			log.Printf("dropped: no peer address for %s in room %s", dstIP, dstRoomID)
-			continue
-		}
-
-		// Reject direct client-to-client: destination must not be the source itself.
-		if srcAddr.String() == dstAddr.String() {
-			log.Printf("dropped: self-send from %s", srcAddr)
-			continue
-		}
-
-		// Forward the encrypted payload to the destination peer.
-		if _, err := conn.WriteTo(payload, dstAddr); err != nil {
-			log.Printf("forward error to %s: %v", dstAddr, err)
-		}
-	}
-}
-
-// findRoomForAddr searches all rooms for a peer registered with the given real UDP address.
-// This is used to determine which room a source packet belongs to, enforcing that
-// all traffic must go through the relay (no direct client-to-client).
-func findRoomForAddr(vnetMgr *vnet.VNetManager, addr net.Addr) (string, error) {
-	roomID, err := vnetMgr.FindRoomByPeerAddr(addr.String())
-	if err != nil {
-		return "", fmt.Errorf("source %s not registered: %w", addr, err)
-	}
-	return roomID, nil
 }

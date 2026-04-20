@@ -151,7 +151,7 @@ func main() {
 
 			// Connect to relay in background
 			wg.Add(1)
-			go func(relayHost string, relayPort int) {
+			go func(relayHost string, relayPort int, virtualIPStr string) {
 				defer wg.Done()
 
 				log.Printf("resolving relay %s:%d...", relayHost, relayPort)
@@ -168,6 +168,19 @@ func main() {
 				}
 				relay = conn
 				log.Println("relay connected")
+
+				// Send registration packet: [0xFF 0xFF 0xFF 0xFF][4 bytes virtual IP]
+				virtualIP := net.ParseIP(virtualIPStr).To4()
+				if virtualIP != nil {
+					regPkt := make([]byte, 8)
+					regPkt[0] = 0xFF
+					regPkt[1] = 0xFF
+					regPkt[2] = 0xFF
+					regPkt[3] = 0xFF
+					copy(regPkt[4:8], virtualIP)
+					relay.Write(regPkt)
+					log.Printf("registered with relay as %s", virtualIPStr)
+				}
 
 				// TUN → Relay
 				wg.Add(1)
@@ -238,7 +251,7 @@ func main() {
 						session.SendPacket(pktBuf)
 					}
 				}()
-			}(msg.RelayHost, msg.RelayPort)
+			}(msg.RelayHost, msg.RelayPort, msg.VirtualIP)
 
 		case "stop":
 			cleanup()
