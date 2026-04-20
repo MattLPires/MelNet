@@ -1,0 +1,65 @@
+{
+  "name": "@melnet/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MelNet desktop app — Electron + React",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "concurrently -n main,renderer \"npm run dev:main\" \"npm run dev:renderer\"",
+    "dev:renderer": "vite",
+    "dev:main": "tsc -p tsconfig.main.json --watch",
+    "start": "electron .",
+    "build": "npm run build:renderer && npm run build:main",
+    "build:renderer": "vite build",
+    "build:main": "tsc -p tsconfig.main.json",
+    "dist": "npm run build && electron-builder",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest --run",
+    "postinstall": "electron-rebuild -m ."
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "concurrently": "^8.2.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.0",
+    "jsdom": "^29.0.2",
+    "vite": "^5.4.0",
+    "vitest": "^4.1.4"
+  },
+  "build": {
+    "appId": "app.melnet.desktop",
+    "productName": "MelNet",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Game",
+      "icon": "build/icon.png"
+    }
+  }
+}

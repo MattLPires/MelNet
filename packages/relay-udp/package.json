@@ -1,0 +1,6 @@
+{
+  "name": "@melnet/relay-udp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MelNet UDP relay — Go"
+}

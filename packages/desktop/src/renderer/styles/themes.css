@@ -1,0 +1,36 @@
+/* MelNet Theme System
+ * Paleta: Amarelo Mel (#F5A623), Laranja Âmbar (#E07B00), Amarelo Claro (#FFD166)
+ *         Preto Favo (#1A1A1A), Branco Cera (#FFFDF5), Cinza Favinho (#3D3D3D)
+ */
+
+/* Dark theme (default) */
+html[data-theme='dark'] {
+  --color-bg: #1A1A1A;
+  --color-bg-secondary: #2A2A2A;
+  --color-text: #FFFDF5;
+  --color-text-muted: #b0b0a8;
+  --color-border: #3D3D3D;
+
+  --color-accent: #F5A623;
+  --color-accent-hover: #E07B00;
+  --color-accent-light: #FFD166;
+
+  --color-danger: #E05050;
+  --color-success: #4CAF50;
+}
+
+/* Light theme */
+html[data-theme='light'] {
+  --color-bg: #FFFDF5;
+  --color-bg-secondary: #F0EDE0;
+  --color-text: #1A1A1A;
+  --color-text-muted: #5A5A5A;
+  --color-border: #D4D0C4;
+
+  --color-accent: #F5A623;
+  --color-accent-hover: #E07B00;
+  --color-accent-light: #FFD166;
+
+  --color-danger: #C62828;
+  --color-success: #2E7D32;
+}

@@ -1,0 +1,277 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 32px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', sans-serif;
+}
+
+.guestBanner {
+  background: var(--color-accent-hover);
+  color: #1A1A1A;
+  text-align: center;
+  padding: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 0.5rem;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.online { background: var(--color-success); }
+.offline { background: var(--color-danger); }
+
+.statusText {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.userName {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.iconBtn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.iconBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.textBtn {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.textBtn:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.content {
+  flex: 1;
+  padding: 1.25rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.primaryBtn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: #1A1A1A;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.primaryBtn:hover { background: var(--color-accent-hover); }
+
+.secondaryBtn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.secondaryBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.roomCount {
+  font-size: 0.7rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1px 7px;
+  color: var(--color-text-muted);
+}
+
+.roomList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.roomCard {
+  padding: 0.65rem 0.85rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+
+.roomCard:hover { border-color: var(--color-accent); }
+
+.roomInfo { display: flex; flex-direction: column; gap: 3px; }
+
+.roomNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roomName {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.roomMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.tag {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(245, 166, 35, 0.1);
+  color: var(--color-accent);
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.statusWaiting { color: var(--color-success); }
+.statusPlaying { color: var(--color-accent); }
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty p { font-size: 0.85rem; margin: 0; }
+.emptyHint { font-size: 0.75rem; opacity: 0.6; }
+
+.hostBadge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 166, 35, 0.15);
+  color: var(--color-accent);
+}
+
+.enterBtn {
+  padding: 4px 12px;
+  border: 1px solid var(--color-accent);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.enterBtn:hover {
+  background: var(--color-accent);
+  color: #1A1A1A;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 1rem 0;
+}

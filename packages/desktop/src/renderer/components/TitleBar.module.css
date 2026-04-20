@@ -1,0 +1,60 @@
+.titleBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  -webkit-app-region: drag;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.dragRegion {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  height: 100%;
+}
+
+.appName {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.controlBtn {
+  width: 46px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.controlBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+}
+
+.closeBtn:hover {
+  background: #e81123;
+  color: #fff;
+}

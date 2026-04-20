@@ -1,0 +1,300 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 32px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  gap: 0.75rem;
+}
+
+.backBtn {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.backBtn:hover { border-color: var(--color-text-muted); color: var(--color-text); }
+
+.headerCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.roomTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.roomBadge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(76, 175, 80, 0.12);
+  color: var(--color-success);
+}
+
+.headerActions { display: flex; gap: 0.4rem; }
+
+.smallBtn {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.smallBtn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+.copied {
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 220px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.sideSection { flex: 1; overflow-y: auto; }
+
+.sideLabel {
+  padding: 0.6rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.memberList { padding: 0.25rem 0; }
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.85rem;
+  transition: background 0.1s;
+}
+.memberItem:hover { background: var(--color-bg-secondary); }
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.memberName {
+  font-size: 0.8rem;
+  color: var(--color-text);
+}
+
+.memberHost {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.hostTag {
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: rgba(245, 166, 35, 0.12);
+  color: var(--color-accent);
+}
+
+.kickBtn {
+  padding: 2px 6px;
+  border: 1px solid var(--color-danger);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-danger);
+  font-size: 0.6rem;
+  font-family: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.memberItem:hover .kickBtn { opacity: 1; }
+.kickBtn:hover { background: rgba(224, 80, 80, 0.1); }
+
+.sideActions {
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.actionBtn {
+  padding: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+.actionBtn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+.leaveBtn {
+  padding: 0.4rem;
+  border: 1px solid rgba(224, 80, 80, 0.3);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-danger);
+  font-size: 0.7rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+.leaveBtn:hover { background: rgba(224, 80, 80, 0.08); }
+
+/* Chat */
+.chatArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chatEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  gap: 0.25rem;
+}
+.chatEmpty p { font-size: 0.85rem; margin: 0; }
+.chatEmptyHint { font-size: 0.75rem; }
+
+.chatMsg {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+.chatMsg:hover { background: var(--color-bg-secondary); }
+
+.chatMsgHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.chatAuthor {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.chatTime {
+  font-size: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.chatText {
+  font-size: 0.82rem;
+  color: var(--color-text);
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.systemMsg {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 0.2rem 0;
+  opacity: 0.7;
+}
+
+.chatInput {
+  display: flex;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--color-border);
+  gap: 0.4rem;
+}
+
+.chatField {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.chatField:focus { border-color: var(--color-accent); }
+.chatField::placeholder { color: var(--color-text-muted); opacity: 0.5; }
+
+.sendBtn {
+  padding: 0.45rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: #1A1A1A;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sendBtn:hover:not(:disabled) { background: var(--color-accent-hover); }
+.sendBtn:disabled { opacity: 0.35; cursor: not-allowed; }
