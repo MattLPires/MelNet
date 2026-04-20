@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -87,6 +88,20 @@ func main() {
 	relay := NewRelayServer()
 
 	fmt.Printf("melnet relay-udp listening on %s\n", addr)
+
+	// Health check HTTP server for Fly.io (keeps machine alive)
+	go func() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(200)
+			w.Write([]byte("ok"))
+		})
+		httpPort := os.Getenv("PORT")
+		if httpPort == "" {
+			httpPort = "8080"
+		}
+		log.Printf("health check on :%s", httpPort)
+		http.ListenAndServe(":"+httpPort, nil)
+	}()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)

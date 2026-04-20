@@ -134,6 +134,22 @@ func main() {
 			}
 			log.Println("IP configured")
 
+			// Add route for the virtual subnet through the MelNet interface
+			// Extract subnet base from virtual IP (e.g., 10.0.5.1 → 10.0.5.0)
+			parts := net.ParseIP(msg.VirtualIP).To4()
+			if parts != nil {
+				subnetBase := fmt.Sprintf("%d.%d.%d.0", parts[0], parts[1], parts[2])
+				// Delete old route if exists, then add new one with low metric
+				exec.Command("route", "delete", subnetBase).Run()
+				routeCmd := exec.Command("route", "add", subnetBase, "mask", "255.255.255.0",
+					msg.VirtualIP, "metric", "1", "if", getInterfaceIndex("MelNet"))
+				if out, err := routeCmd.CombinedOutput(); err != nil {
+					log.Printf("route add: %s", string(out))
+				} else {
+					log.Printf("route added: %s/24 via %s", subnetBase, msg.VirtualIP)
+				}
+			}
+
 			// Start session
 			session, err = adapter.StartSession(0x400000)
 			if err != nil {
@@ -273,4 +289,24 @@ func init() {
 		dirW, _ := windows.UTF16PtrFromString(dir)
 		setDllDir.Call(uintptr(unsafe.Pointer(dirW)))
 	}
+}
+
+// getInterfaceIndex returns the Windows interface index for the named adapter.
+func getInterfaceIndex(name string) string {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "0"
+	}
+	for _, iface := range ifaces {
+		if iface.Name == name {
+			return fmt.Sprintf("%d", iface.Index)
+		}
+	}
+	// Fallback: try to find by partial match
+	for _, iface := range ifaces {
+		if len(iface.Name) > 0 && iface.Name == name {
+			return fmt.Sprintf("%d", iface.Index)
+		}
+	}
+	return "0"
 }
