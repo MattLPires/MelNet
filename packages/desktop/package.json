@@ -49,6 +49,20 @@
       "dist/**/*",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "tunnel-helper/tunnel-helper.exe",
+        "to": "tunnel-helper.exe"
+      },
+      {
+        "from": "tunnel-helper/wintun.dll",
+        "to": "wintun.dll"
+      },
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      }
+    ],
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"

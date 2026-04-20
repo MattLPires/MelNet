@@ -88,6 +88,96 @@
   background: var(--color-bg);
 }
 
+/* Tunnel toggle */
+.tunnelSection {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tunnelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tunnelInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tunnelLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tunnelIp {
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-text);
+}
+
+.tunnelToggle {
+  position: relative;
+  width: 38px;
+  height: 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-border);
+  cursor: pointer;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+
+.tunnelToggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tunnelOn {
+  background: var(--color-success);
+}
+
+.tunnelConnecting {
+  background: var(--color-accent);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.tunnelToggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s;
+}
+
+.tunnelOn .tunnelToggleKnob {
+  transform: translateX(18px);
+}
+
+.tunnelConnecting .tunnelToggleKnob {
+  transform: translateX(9px);
+}
+
+.tunnelHint {
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+}
+
 .sideSection { flex: 1; overflow-y: auto; }
 
 .sideLabel {

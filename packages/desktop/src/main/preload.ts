@@ -75,3 +75,9 @@ contextBridge.exposeInMainWorld('melnetWindow', {
   maximize: () => ipcRenderer.send('window:maximize'),
   close: () => ipcRenderer.send('window:close'),
 });
+contextBridge.exposeInMainWorld('melnetTunnel', {
+  start: (config: { virtualIp: string; subnet: string; relayHost: string; relayPort: number; tunnelKey: string }) =>
+    ipcRenderer.invoke('tunnel:start', config),
+  stop: () => ipcRenderer.invoke('tunnel:stop'),
+  status: () => ipcRenderer.invoke('tunnel:status'),
+});

@@ -26,6 +26,7 @@ const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCreated }
   const [loading, setLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [createdRoomId, setCreatedRoomId] = useState<string | null>(null);
+  const [createdTunnel, setCreatedTunnel] = useState<{ virtualIp: string; relayHost: string; relayPort: number; tunnelKey: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,9 +48,10 @@ const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCreated }
 
     const onCreated = (msg: ServerMessage) => {
       cleanup();
-      const p = msg.payload as { inviteCode: string; room: { id: string; name: string; members: { userId: string; nickname: string }[]; hostId: string } };
+      const p = msg.payload as { inviteCode: string; tunnel?: { virtualIp: string; relayHost: string; relayPort: number; tunnelKey: string }; room: { id: string; name: string; members: { userId: string; nickname: string }[]; hostId: string } };
       setInviteCode(p.inviteCode);
       setCreatedRoomId(p.room.id);
+      setCreatedTunnel(p.tunnel ?? null);
       setLoading(false);
     };
 
@@ -94,6 +96,7 @@ const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCreated }
         members: [{ userId: user.id, nickname: user.nickname }],
         hostId: user.id,
         inviteCode,
+        tunnel: createdTunnel ?? undefined,
       });
     } else {
       onBack();

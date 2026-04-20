@@ -18,6 +18,12 @@ export interface RoomPageState {
   members: RoomMember[];
   hostId: string;
   inviteCode: string;
+  tunnel?: {
+    virtualIp: string;
+    relayHost: string;
+    relayPort: number;
+    tunnelKey: string;
+  };
 }
 
 const DEFAULT_SERVER_URL = 'ss://melnet.onrender.com'
@@ -95,6 +101,7 @@ const App: React.FC = () => {
         members={roomState.members}
         hostId={roomState.hostId}
         inviteCode={roomState.inviteCode}
+        tunnel={roomState.tunnel}
         onBack={() => {
           setRoomState(null);
           setPage('dashboard');

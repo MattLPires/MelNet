@@ -10,10 +10,20 @@ let isQuitting = false;
 const isDev = !app.isPackaged;
 
 function createTray(): void {
-  // Create a simple 16x16 tray icon (orange hexagon)
-  const icon = nativeImage.createFromDataURL(
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3ElEQVQ4T6WTwQ3CMAAE7wqgA+iADqAD6IAOoAPogA6gAzqADugAOoAO2NVKkWMnTsQpkuXz3a3t0PCjhvX/BewBnIFdKuQG4AjgkgN4ADgB2KZCHgCuAPYpgFcqZJMCeKdCNimATypkkwL4pkI2KYBfKmSTAvgPwCYF8B+ATQrgPwCbFMB/ADYpgP8AbFIA/wHYpAD+A7BJAfwHYJMC+A/AJgXwH4BNCuA/AJsUwH8ANimA/wBsUgD/AdikAP4DsEkB/AdgkwL4D8AmBfAfgE0K4D8AmxTAfwA2KYAvHxIhEfhPdJoAAAAASUVORK5CYII='
-  );
+  const iconPath = isDev
+    ? path.join(app.getAppPath(), '..', '..', 'build', 'icon.ico')
+    : path.join(process.resourcesPath, 'icon.ico');
+
+  let icon: Electron.NativeImage;
+  try {
+    icon = nativeImage.createFromPath(iconPath);
+    if (icon.isEmpty()) throw new Error('empty');
+  } catch {
+    // Fallback to a simple generated icon
+    icon = nativeImage.createFromDataURL(
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3ElEQVQ4T6WTwQ3CMAAE7wqgA+iADqAD6IAOoAPogA6gAzqADugAOoAO2NVKkWMnTsQpkuXz3a3t0PCjhvX/BewBnIFdKuQG4AjgkgN4ADgB2KZCHgCuAPYpgFcqZJMCeKdCNimATypkkwL4pkI2KYBfKmSTAvgPwCYF8B+ATQrgPwCbFMB/ADYpgP8AbFIA/wHYpAD+A7BJAfwHYJMC+A/AJgXwH4BNCuA/AJsUwH8ANimA/wBsUgD/AdikAP4DsEkB/AdgkwL4D8AmBfAfgE0K4D8AmxTAfwA2KYAvHxIhEfhPdJoAAAAASUVORK5CYII='
+    );
+  }
 
   tray = new Tray(icon);
   tray.setToolTip('MelNet');
@@ -61,6 +71,9 @@ function createWindow(): void {
     minHeight: 600,
     frame: false,
     titleBarStyle: 'hidden',
+    icon: isDev
+      ? path.join(app.getAppPath(), '..', '..', 'build', 'icon.ico')
+      : path.join(process.resourcesPath, 'icon.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

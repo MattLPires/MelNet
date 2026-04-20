@@ -3,7 +3,10 @@ import { PreferencesRepository } from './PreferencesRepository';
 import { RoomHistoryRepository, type RoomHistoryEntry } from './RoomHistoryRepository';
 import { SessionRepository, type UserSession } from './SessionRepository';
 import { setAutoStart, getAutoStartEnabled } from '../autostart';
+import { TunnelBridge, type TunnelConfig } from '../tunnel/TunnelBridge';
 import type Database from 'better-sqlite3';
+
+const tunnelBridge = new TunnelBridge();
 
 /**
  * Registers IPC handlers that bridge the renderer process to the SQLite database.
@@ -52,5 +55,25 @@ export function registerDbIpcHandlers(db: Database.Database): void {
 
   ipcMain.handle('app:get-auto-start', () => {
     return getAutoStartEnabled();
+  });
+
+  // --- Tunnel ---
+  ipcMain.handle('tunnel:start', async (_event, config: TunnelConfig) => {
+    try {
+      await tunnelBridge.start(config);
+      return { success: true, virtualIp: tunnelBridge.virtualIp };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to start tunnel';
+      return { success: false, error: message };
+    }
+  });
+
+  ipcMain.handle('tunnel:stop', () => {
+    tunnelBridge.stop();
+    return { success: true };
+  });
+
+  ipcMain.handle('tunnel:status', () => {
+    return { connected: tunnelBridge.isConnected, virtualIp: tunnelBridge.virtualIp };
   });
 }
