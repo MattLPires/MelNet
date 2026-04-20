@@ -15,7 +15,7 @@ interface FieldErrors {
   password?: string;
 }
 
-const DEFAULT_SERVER_URL = 'ws://localhost:3001';
+const DEFAULT_SERVER_URL = 'wss://melnet.onrender.com'
 
 function validateEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

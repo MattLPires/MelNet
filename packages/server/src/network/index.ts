@@ -10,8 +10,8 @@ import { VirtualNetworkManager } from "./vnet-manager";
 export const vnetManager = new VirtualNetworkManager();
 
 /** Default relay configuration (overridable via env). */
-export const RELAY_HOST = process.env.RELAY_HOST ?? "localhost";
-export const RELAY_PORT = Number(process.env.RELAY_PORT) || 4242;
+export const RELAY_HOST = 'melnet-relay.fly.dev'
+export const RELAY_PORT = 4242;
 
 /**
  * Generate a 32-byte tunnel encryption key, returned as base64.

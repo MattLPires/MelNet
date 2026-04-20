@@ -20,7 +20,8 @@ export interface RoomPageState {
   inviteCode: string;
 }
 
-const DEFAULT_SERVER_URL = 'ws://localhost:3001';
+const DEFAULT_SERVER_URL = 'ss://melnet.onrender.com'
+
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, setAuth, setLoading } = useAuthStore();

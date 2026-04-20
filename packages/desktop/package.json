@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "MelNet desktop app — Electron + React",
+  "author": "MelNet <suporte@melnet.app>",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "concurrently -n main,renderer \"npm run dev:main\" \"npm run dev:renderer\"",
@@ -15,7 +16,7 @@
     "dist": "npm run build && electron-builder",
     "lint": "eslint src --ext .ts,.tsx",
     "test": "vitest --run",
-    "postinstall": "electron-rebuild -m ."
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "better-sqlite3": "^11.0.0",
@@ -24,7 +25,6 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.0.3",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -33,7 +33,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "concurrently": "^8.2.0",
-    "electron": "^31.0.0",
+    "electron": "31.7.7",
     "electron-builder": "^24.13.0",
     "jsdom": "^29.0.2",
     "vite": "^5.4.0",
