@@ -20,7 +20,9 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/signal"
 	"sync"
+	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -56,6 +58,12 @@ func main() {
 	encoder = json.NewEncoder(os.Stdout)
 	log.SetOutput(os.Stderr)
 
+	// Clean up any leftover adapter from a previous crash
+	if old, err := wintun.OpenAdapter("MelNet"); err == nil && old != nil {
+		log.Println("cleaning up leftover MelNet adapter")
+		old.Close()
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
 
@@ -64,6 +72,39 @@ func main() {
 	var relay *net.UDPConn
 	var stopCh chan struct{}
 	var wg sync.WaitGroup
+
+	// Cleanup on any exit (crash, SIGTERM, stdin close, etc.)
+	cleanup := func() {
+		if stopCh != nil {
+			select {
+			case <-stopCh:
+			default:
+				close(stopCh)
+			}
+			wg.Wait()
+		}
+		if relay != nil {
+			relay.Close()
+			relay = nil
+		}
+		if adapter != nil {
+			session.End()
+			adapter.Close()
+			adapter = nil
+			log.Println("adapter cleaned up")
+		}
+	}
+	defer cleanup()
+
+	// Also handle OS signals
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-sigCh
+		log.Println("signal received, cleaning up")
+		cleanup()
+		os.Exit(0)
+	}()
 
 	for scanner.Scan() {
 		var msg Message
