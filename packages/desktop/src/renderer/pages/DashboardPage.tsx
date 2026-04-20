@@ -85,13 +85,56 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onNavigateToR
   const handleLogout = () => { networkManager.disconnect(); logout(); };
 
   const enterRoom = (room: PublicRoom) => {
-    onNavigateToRoom?.({
-      roomId: room.id,
-      roomName: room.name,
-      members: room.members,
-      hostId: room.hostId,
-      inviteCode: room.inviteCode,
-    });
+    // If already a member, rejoin to get tunnel credentials
+    const isMember = room.members.some((m) => m.userId === user?.id);
+
+    if (isMember) {
+      // Already in room — send join-room to get fresh tunnel creds
+      const onJoined = (msg: ServerMessage) => {
+        cleanupJoin();
+        const p = msg.payload as { room?: PublicRoom; tunnel?: { virtualIp: string; relayHost: string; relayPort: number; tunnelKey: string } };
+        onNavigateToRoom?.({
+          roomId: room.id,
+          roomName: room.name,
+          members: p.room?.members ?? room.members,
+          hostId: room.hostId,
+          inviteCode: room.inviteCode,
+          tunnel: p.tunnel,
+        });
+      };
+      const onError = () => {
+        cleanupJoin();
+        // Navigate anyway without tunnel
+        onNavigateToRoom?.({
+          roomId: room.id,
+          roomName: room.name,
+          members: room.members,
+          hostId: room.hostId,
+          inviteCode: room.inviteCode,
+        });
+      };
+      const cleanupJoin = () => {
+        networkManager.off('room-joined', onJoined);
+        networkManager.off('error', onError);
+      };
+      networkManager.on('room-joined', onJoined);
+      networkManager.on('error', onError);
+      try {
+        networkManager.send('join-room', { inviteCode: room.inviteCode });
+      } catch {
+        cleanupJoin();
+        onNavigateToRoom?.({ roomId: room.id, roomName: room.name, members: room.members, hostId: room.hostId, inviteCode: room.inviteCode });
+      }
+    } else {
+      // Not a member — just navigate (they'll need to join via code)
+      onNavigateToRoom?.({
+        roomId: room.id,
+        roomName: room.name,
+        members: room.members,
+        hostId: room.hostId,
+        inviteCode: room.inviteCode,
+      });
+    }
   };
 
   const handleJoinByCode = () => {
@@ -105,7 +148,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onNavigateToR
     const onJoined = (msg: ServerMessage) => {
       cleanup();
       setJoinLoading(false);
-      const p = msg.payload as { room: PublicRoom };
+      const p = msg.payload as { room: PublicRoom; tunnel?: { virtualIp: string; relayHost: string; relayPort: number; tunnelKey: string } };
       if (p.room) {
         setShowJoinDialog(false);
         setJoinCode('');
@@ -117,6 +160,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onNavigateToR
           members: p.room.members,
           hostId: p.room.hostId,
           inviteCode: p.room.inviteCode,
+          tunnel: p.tunnel,
         });
       }
     };
